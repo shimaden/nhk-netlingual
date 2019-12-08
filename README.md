@@ -86,6 +86,6 @@ ffmpeg https://www.ffmpeg.org/
 ## ライセンス
 The MIT License.
 
-## Auther
+## Author
 Shimaden <shimaden@shimaden.homelinux.net>
 Twitter https://twitter.com/SHIMADEN (94380019)
