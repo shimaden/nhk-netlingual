@@ -63,8 +63,8 @@ NHK 語学講座で放送された番組の音声を、NHK の聞き逃し配信
 音声データのダウンロードと MP3 形式への変換には ffmpeg コマンドを次のように呼び出して行っています。こうすると、ffmpeg コマンドは音声データダウンロード URL から音声データをダウンロードして MP3 形式に変換してファイルに保存してくれます（ffmpeg 最強説）。
 
 ```
-    ffmpeg -i https://nhks-vh.akamaihd.net/i/gogaku-stream/mp4/19-er-4235-810.mp4/master.m3u8 -c:a mp3 ラジオ英会話_2019年度_11月25日放送分.mp3
-    （ここでは拡張子に .mp3 を指定しているので -c:a mp3 はなくてもよい）
+    ffmpeg -i https://nhks-vh.akamaihd.net/i/gogaku-stream/mp4/19-er-4235-810.mp4/master.m3u8 -f mp3 ラジオ英会話_2019年度_11月25日放送分.mp3
+    （ここでは拡張子に .mp3 を指定しているので -f mp3 はなくてもよい）
 ```
 
 ## 番組パスの調べ方
