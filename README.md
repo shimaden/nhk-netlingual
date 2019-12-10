@@ -137,6 +137,8 @@ neri は RubyInstaller のインストール後に次のようにしてインス
 ## ライセンス
 The MIT License.
 
+※ 同梱の ffmpeg.exe は ffmpeg のライセンスに従ってください。
+
 ## Author
 Shimaden <shimaden@shimaden.homelinux.net>
 Twitter https://twitter.com/SHIMADEN (94380019)

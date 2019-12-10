@@ -2,14 +2,46 @@
 # このファイルはＵＴＦ－８です（テキストエディタの自動文字コード誤判定防止用文字列）
 require 'rexml/document'
 require 'net/https'
+require 'rbconfig'
 
-CONF_DIR = '/usr/local/etc/nhk-netlingual'
+def os()
+  host_os = RbConfig::CONFIG['host_os']
+  case host_os
+  when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+    :windows
+  when /darwin|mac os/
+    :macosx
+  when /linux/
+    :linux
+  when /solaris|bsd/
+    :unix
+  else
+    :unknown
+  end
+end
+
+CONF_DIR_LINUX   = '/usr/local/etc/nhk-netlingual'
+CONF_DIR_WINDOWS = File.dirname(__FILE__)
+CONF_DIR = os == :linux ? CONF_DIR_LINUX : CONF_DIR_WINDOWS
+
+
+def set_ext_encoding(io)
+  if os() == :windows then
+    io.set_encoding(Encoding::UTF_8)
+  end
+end
+
+CACERT_PEM      = 'cacert.pem'
+SSL_CACERT_FILE = File.expand_path(CACERT_PEM, CONF_DIR)
+
 PROGRAM_LIST_CONF = 'program-list.conf'
+
 
 XML_URL   = ['https://cgi2.nhk.or.jp/gogaku/st/xml', 'listdataflv.xml']
 AUDIO_URL = ['https://nhks-vh.akamaihd.net/i/gogaku-stream/mp4', 'master.m3u8']
 
 PROGRAM_LIST = File.expand_path(PROGRAM_LIST_CONF, CONF_DIR)
+
 
 class Music
   attr_reader :title, :hdate, :kouza, :code, :file, :nendo, :pgcode
@@ -38,24 +70,14 @@ class Music
 
 end
 
-=begin
-def read_xml_from(fname)
-  doc = ''
-  File.open(fname, "r") do |f|
-    line = ''
-    while line = f.gets do
-      doc += line
-    end
-  end
-  return doc
-end
-=end
-
 def download_xml(kouza)
   endpoint = "#{XML_URL[0]}/#{kouza}/#{XML_URL[1]}"
   ret = nil
   uri = URI.parse(endpoint)
   https = Net::HTTP.new(uri.host, 443)
+  https.ca_file = SSL_CACERT_FILE if os() == :windows
+#$stderr.puts("CONF_DIR       : #{CONF_DIR}")
+#$stderr.puts("SSL_CACERT_FILE: #{SSL_CACERT_FILE}")
   https.use_ssl = true
 
   res = nil
@@ -98,8 +120,11 @@ def download(music)
 end
 
 def usage()
+
+$stderr.puts("PROGRAM_LIST: #{PROGRAM_LIST}")
   program_list = ''
   File.open(PROGRAM_LIST, "r") do |f|
+    set_ext_encoding(f)
     while line = f.gets() do
       program_list += line if !(line =~ /^\s*#/) && !(line =~ /^\s*$/)
     end
