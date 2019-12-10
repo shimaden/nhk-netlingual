@@ -124,7 +124,7 @@ neri は RubyInstaller のインストール後に次のようにしてインス
 > gem install neri
 ```
 
-※ <RI-dir> は RubyInstaller をインストールしたディレクトリとします。
+※ &lt;RI-dir> は RubyInstaller をインストールしたディレクトリとします。
 
 そして、
 
