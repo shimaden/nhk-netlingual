@@ -78,6 +78,7 @@ NHK の聞き逃し配信サービスの仕様により、ダウンロードで�
 nhk-netlingual.exe
 program-list.conf
 cacert.pem
+ffmpeg.exe
 ```
 
 ディレクトリにパスを通しておくと便利です。
