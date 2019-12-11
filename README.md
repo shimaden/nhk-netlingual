@@ -47,7 +47,7 @@ $ nhk-netlingual.rb 番組パス
     spanish/kouza2      まいにちスペイン語（応用編）
 ```
 
-### 例
+### 具体的な使用例
 「ラジオ英会話」の各放送回をダウンロード
 ```
 $ nhk-netlingua.rb english/kaiwa
