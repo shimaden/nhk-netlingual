@@ -3,6 +3,7 @@
 require 'rexml/document'
 require 'net/https'
 require 'rbconfig'
+require 'pathname'
 
 def os()
   host_os = RbConfig::CONFIG['host_os']
@@ -93,9 +94,9 @@ def download_xml(kouza)
   return ret
 end
 
-def download(music)
+def download(music, outdir)
   hash = nil
-  outfname = "#{music.title}_#{music.nendo}年度_#{music.hdate}.mp3"
+  outfname = (Pathname(outdir) / "#{music.title}_#{music.nendo}年度_#{music.hdate}.mp3").to_s
   outfname_part = "#{outfname}.part"
   if !File.exist?(outfname) then
     child_pid = Process.spawn(
@@ -130,25 +131,31 @@ $stderr.puts("PROGRAM_LIST: #{PROGRAM_LIST}")
     end
   end
   puts()
-  puts("Usage: #{File.basename($0)} 番組パス")
+  puts("Usage: #{File.basename($0)} 番組パス 保存先ディレクトリ")
   puts()
   puts("  番組パス")
   program_list.each_line do |line|
     puts("    #{line}")
   end
   puts()
-  puts("Copyright (c) 2019, Shimaden <shimaden@shimaden.homelinux.net>")
+  puts("Copyright (c) 2019, Shimaden. Twitter: @SHIMADEN")
   puts()
 end
 
 #--- Main ---
 
-if ARGV.size != 1 then
+if ARGV.size != 2 then
   usage()
   exit(1)
 end
 
-kouza = ARGV[0]
+kouza  = ARGV[0]
+outdir = ARGV[1]
+
+if !FileTest.directory?(outdir) then
+  $stderr.puts("ディレクトリがありません: #{outdir}")
+  exit(1)
+end
 
 dl_ret = download_xml(kouza)
 if dl_ret[:xml].nil? then
@@ -178,7 +185,7 @@ musicdata.each do |music|
   puts("Nendo  : #{music.nendo}")
   puts("PG Code: #{music.pgcode}")
   puts("URL    : #{music.audio_url}")
-  dl_ret = download(music)
+  dl_ret = download(music, outdir)
   if dl_ret == :dl_success then
     $stderr.puts("ダウンロード成功。")
   elsif dl_ret == :dl_error then
