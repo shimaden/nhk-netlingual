@@ -4,6 +4,7 @@ require 'rexml/document'
 require 'net/https'
 require 'rbconfig'
 require 'pathname'
+require 'fileutils'
 
 def os()
   host_os = RbConfig::CONFIG['host_os']
@@ -152,8 +153,13 @@ end
 kouza  = ARGV[0]
 outdir = ARGV[1]
 
-if !FileTest.directory?(outdir) then
-  $stderr.puts("ディレクトリがありません: #{outdir}")
+begin
+  if !FileTest.directory?(outdir) then
+    FileUtils.mkdir_p(outdir)
+  end
+rescue SystemCallError => e
+  $stderr.puts("#{e.class}: #{e.message}")
+  $stderr.puts("保存先ディレクトリを作成できませんでした: #{outdir}")
   exit(1)
 end
 
