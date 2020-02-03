@@ -11,7 +11,7 @@ NHK 語学講座番組は放送終了後も聞き逃し配信サービスで聞�
 
 ## 書式
 ```
-$ nhk-netlingual.rb 番組パス
+$ nhk-netlingual.rb 番組パス 保存先ディレクトリ
 ```
 とすると、指定された番組の音声がカレント・ディレクトリに MP3 形式で保存されます。
 
@@ -29,6 +29,7 @@ $ nhk-netlingual.rb 番組パス
     english/basic1      基礎英語１
     english/basic2      基礎英語２
     english/basic3      基礎英語３
+    english/vr-radio    ボキャブライダー
     hangeul/omotenashi  おもてなしのハングル
     chinese/kouza       まいにち中国語
     chinese/levelup     レベルアップ 中国語
