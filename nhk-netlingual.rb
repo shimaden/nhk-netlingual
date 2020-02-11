@@ -5,6 +5,7 @@ require 'net/https'
 require 'rbconfig'
 require 'pathname'
 require 'fileutils'
+#require 'stringio'
 
 def os()
   host_os = RbConfig::CONFIG['host_os']
@@ -46,7 +47,7 @@ PROGRAM_LIST = File.expand_path(PROGRAM_LIST_CONF, CONF_DIR)
 
 
 class Music
-  attr_reader :title, :hdate, :kouza, :code, :file, :nendo, :pgcode
+  attr_reader :title, :hdate_raw, :hdate, :kouza, :code, :file, :nendo, :pgcode
 
   def initialize(music)
     title_attr  = music.attribute('title')
@@ -59,11 +60,23 @@ class Music
 
     @title  = title_attr ? title_attr.value : ''
     @hdate  = hdate_attr ? hdate_attr.value : ''
+    @hdate_raw  = hdate_attr ? hdate_attr.value : ''
     @kouza  = kouza_attr ? kouza_attr.value : ''
     @code   = code_attr ? code_attr.value : ''
     @file   = file_attr ? file_attr.value : ''
     @nendo  = nendo_attr ? nendo_attr.value : ''
     @pgcode = pgcode_attr ? pgcode_attr.value : ''
+
+    # hdate の書式: "2月3日放送分"
+    mon  = @hdate_raw[/^[0-9]+/]
+    mday = @hdate_raw[/(?![0-9]+月)[0-9]+/]
+
+    #hdate_io = StringIO.new("", "w+")
+    #printf(hdate_io, "%02d月%02d日放送分", mon, mday)
+    #hdate_io.seek(0)
+    #@hdate = hdate_io.read()
+    @hdate = sprintf("%02d月%02d日放送分", mon, mday)
+
   end
 
   def audio_url()
@@ -72,14 +85,12 @@ class Music
 
 end
 
-def download_xml(kouza)
+def download_xml(kouza, is_save_to_file)
   endpoint = "#{XML_URL[0]}/#{kouza}/#{XML_URL[1]}"
   ret = nil
   uri = URI.parse(endpoint)
   https = Net::HTTP.new(uri.host, 443)
   https.ca_file = SSL_CACERT_FILE if os() == :windows
-#$stderr.puts("CONF_DIR       : #{CONF_DIR}")
-#$stderr.puts("SSL_CACERT_FILE: #{SSL_CACERT_FILE}")
   https.use_ssl = true
 
   res = nil
@@ -89,15 +100,22 @@ def download_xml(kouza)
   hash = nil
   if res.is_a?(Net::HTTPSuccess) then
     ret = {:xml => res.body, :http_response => res}
+    if is_save_to_file then
+      File.open("program.xml", "w") do |f|
+#$stderr.puts("HERE")
+        f.write(res.body)
+      end
+    end
   else
     ret = {:xml => nil, :http_response => res}
   end
   return ret
 end
 
-def download(music, outdir)
+#def download(music, outdir)
+def download(music, outfname)
   hash = nil
-  outfname = (Pathname(outdir) / "#{music.title}_#{music.nendo}年度_#{music.hdate}.mp3").to_s
+  #outfname = (Pathname(outdir) / "#{music.title} #{music.nendo}年度#{music.hdate}.mp3").to_s
   outfname_part = "#{outfname}.part"
   if !File.exist?(outfname) then
     child_pid = Process.spawn(
@@ -163,7 +181,9 @@ rescue SystemCallError => e
   exit(1)
 end
 
-dl_ret = download_xml(kouza)
+is_save_to_file = false
+
+dl_ret = download_xml(kouza, is_save_to_file)
 if dl_ret[:xml].nil? then
   $stderr.puts("番組データ XML ダウンロードエラー")
   $stderr.puts("#{dl_ret[:http_response].code}: #{dl_ret[:http_response].message}")
@@ -183,6 +203,7 @@ end
 ret = 0
 
 musicdata.each do |music|
+  outfname = (Pathname(outdir) / "#{music.title} #{music.nendo}年度#{music.hdate}.mp3").to_s
   puts("Title  : #{music.title}")
   puts("Date   : #{music.hdate}")
   puts("Kouza  : #{music.kouza}")
@@ -191,7 +212,10 @@ musicdata.each do |music|
   puts("Nendo  : #{music.nendo}")
   puts("PG Code: #{music.pgcode}")
   puts("URL    : #{music.audio_url}")
-  dl_ret = download(music, outdir)
+  puts("Save to: #{outfname}")
+#next
+  #dl_ret = download(music, outdir)
+  dl_ret = download(music, outfname)
   if dl_ret == :dl_success then
     $stderr.puts("ダウンロード成功。")
   elsif dl_ret == :dl_error then
