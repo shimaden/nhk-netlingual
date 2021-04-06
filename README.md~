@@ -24,7 +24,8 @@ $ nhk-netlingual.rb 番組パス 保存先ディレクトリ
     english/enjoy       エンジョイ・シンプル・イングリッシュ
     english/timetrial   英会話タイムトライアル
     english/gendai      高校生からはじめる「現代英語」
-    english/business1   ラジオビジネス英語
+    english/business1   入門ビジネス英語
+    english/business2   実践ビジネス英語
     english/basic1      基礎英語１
     english/basic2      基礎英語２
     english/basic3      基礎英語３
